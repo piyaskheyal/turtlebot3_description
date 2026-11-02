@@ -1,0 +1,1028 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary cameraSettings = {
+            dictionary Front = {
+                double3 position = (5, 0, 0)
+                double radius = 5
+            }
+            dictionary Perspective = {
+                double3 position = (0.025930166940949816, 0.4996126467842989, 0.22557566333258397)
+                double3 target = (-0.32357998814808825, -1.3453077408702376, -0.2505593548662808)
+            }
+            dictionary Right = {
+                double3 position = (0, -5, 0)
+                double radius = 5
+            }
+            dictionary Top = {
+                double3 position = (0, 0, 5)
+                double radius = 5
+            }
+            string boundCamera = "/OmniverseKit_Persp"
+        }
+        dictionary omni_layer = {
+            string authoring_layer = "./turtlebot3_final.usda"
+            dictionary locked = {
+            }
+            dictionary muteness = {
+            }
+        }
+        dictionary renderSettings = {
+        }
+    }
+    defaultPrim = "turtlebot3_burger"
+    endTimeCode = 0
+    metersPerUnit = 1
+    startTimeCode = -1
+    subLayers = [
+        @./configuration/turtlebot3_burger_robot_schema.usd@
+    ]
+    upAxis = "Z"
+)
+
+def Xform "turtlebot3_burger" (
+    prepend apiSchemas = ["PhysicsArticulationRootAPI", "PhysxArticulationAPI"]
+    variants = {
+        string Physics = "PhysX"
+        string Sensor = "Sensors"
+    }
+    prepend variantSets = ["Physics", "Sensor"]
+)
+{
+    quatd xformOp:orient = (1, 0, 0, 0)
+    double3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+    over "base_footprint" (
+        delete apiSchemas = ["PhysicsArticulationRootAPI", "PhysxArticulationAPI"]
+    )
+    {
+    }
+
+    over "wheel_left_link"
+    {
+    }
+
+    over "wheel_right_link"
+    {
+    }
+
+    over "joints"
+    {
+        over "wheel_left_joint"
+        {
+            float drive:angular:physics:damping = 10000000
+            float drive:angular:physics:stiffness = 0
+        }
+
+        over "wheel_right_joint"
+        {
+            float drive:angular:physics:damping = 10000000
+            float drive:angular:physics:stiffness = 0
+        }
+    }
+
+    def "Graphs"
+    {
+        def OmniGraph "ROS_Clock"
+        {
+            token evaluationMode = "Automatic"
+            token evaluator:type = "execution"
+            token fabricCacheBacking = "StageWithoutHistory"
+            int2 fileFormatVersion = (1, 9)
+            token pipelineStage = "pipelineStageSimulation"
+
+            def OmniGraphNode "OnPlaybackTick"
+            {
+                token node:type = "omni.graph.action.OnPlaybackTick"
+                int node:typeVersion = 2
+                custom double outputs:deltaSeconds
+                custom double outputs:frame
+                custom uint outputs:tick (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom double outputs:time
+            }
+
+            def OmniGraphNode "ReadSimTime"
+            {
+                custom uint64 inputs:referenceTimeDenominator
+                custom int64 inputs:referenceTimeNumerator
+                custom bool inputs:resetOnStop = 1
+                token node:type = "isaacsim.core.nodes.IsaacReadSimulationTime"
+                int node:typeVersion = 1
+                custom double outputs:simulationTime
+            }
+
+            def OmniGraphNode "PublishClock"
+            {
+                custom uint64 inputs:context
+                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_Clock/Context.outputs:context>
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_Clock/OnPlaybackTick.outputs:tick>
+                custom string inputs:nodeNamespace
+                custom string inputs:qosProfile
+                custom uint64 inputs:queueSize
+                custom double inputs:timeStamp
+                prepend double inputs:timeStamp.connect = </turtlebot3_burger/Graphs/ROS_Clock/ReadSimTime.outputs:simulationTime>
+                custom string inputs:topicName
+                token node:type = "isaacsim.ros2.bridge.ROS2PublishClock"
+                int node:typeVersion = 1
+            }
+
+            def OmniGraphNode "Context"
+            {
+                custom uchar inputs:domain_id
+                custom bool inputs:useDomainIDEnvVar
+                token node:type = "isaacsim.ros2.bridge.ROS2Context"
+                int node:typeVersion = 2
+                custom uint64 outputs:context
+            }
+        }
+
+        def OmniGraph "ROS_LidarRTX"
+        {
+            token evaluationMode = "Automatic"
+            token evaluator:type = "execution"
+            token fabricCacheBacking = "StageWithoutHistory"
+            int2 fileFormatVersion = (1, 9)
+            token pipelineStage = "pipelineStageSimulation"
+
+            def OmniGraphNode "OnPlaybackTick"
+            {
+                token node:type = "omni.graph.action.OnPlaybackTick"
+                int node:typeVersion = 2
+                custom double outputs:deltaSeconds
+                custom double outputs:frame
+                custom uint outputs:tick (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom double outputs:time
+            }
+
+            def OmniGraphNode "RunOnce" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/OnPlaybackTick.outputs:tick>
+                token node:type = "isaacsim.core.nodes.OgnIsaacRunOneSimulationFrame"
+                int node:typeVersion = 1
+                custom uint outputs:step (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                uniform float2 ui:nodegraph:node:pos = (-1177.0779, -119.25502)
+            }
+
+            def OmniGraphNode "RenderProduct" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom rel inputs:cameraPrim = </turtlebot3_burger/base_scan/Example_Rotary_2D> (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom bool inputs:enabled
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RunOnce.outputs:step>
+                custom uint inputs:height
+                custom rel inputs:renderProductPrim (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom uint inputs:width
+                token node:type = "isaacsim.core.nodes.IsaacCreateRenderProduct"
+                int node:typeVersion = 3
+                custom uint outputs:execOut (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom token outputs:renderProductPath
+                uniform float2 ui:nodegraph:node:pos = (-864.01886, -167.2315)
+            }
+
+            def OmniGraphNode "Context" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom uchar inputs:domain_id
+                custom bool inputs:useDomainIDEnvVar
+                token node:type = "isaacsim.ros2.bridge.ROS2Context"
+                int node:typeVersion = 2
+                custom uint64 outputs:context
+                uniform float2 ui:nodegraph:node:pos = (-958.9758, 111.50192)
+            }
+
+            def OmniGraphNode "LaserScanPublish" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom uint64 inputs:context
+                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/Context.outputs:context>
+                custom bool inputs:enabled
+                custom bool inputs:enableObjectIdMap
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RenderProduct.outputs:execOut>
+                custom string inputs:frameId = "base_scan"
+                custom uint inputs:frameSkipCount
+                custom bool inputs:fullScan
+                custom string inputs:nodeNamespace = ""
+                custom string inputs:objectIdMapTopicName
+                custom string inputs:qosProfile
+                custom uint64 inputs:queueSize
+                custom token inputs:renderProductPath
+                prepend token inputs:renderProductPath.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RenderProduct.outputs:renderProductPath>
+                custom bool inputs:resetSimulationTimeOnStop
+                custom token[] inputs:selectedMetadata
+                custom bool inputs:showDebugView
+                custom string inputs:topicName = "/laser_scan"
+                custom token inputs:type = "laser_scan" (
+                    allowedTokens = ["laser_scan", "point_cloud"]
+                )
+                custom bool inputs:useSystemTime
+                token node:type = "isaacsim.ros2.bridge.ROS2RtxLidarHelper"
+                int node:typeVersion = 3
+                uniform float2 ui:nodegraph:node:pos = (-497.697, -154.85289)
+            }
+        }
+
+        def OmniGraph "ROS_Odometry"
+        {
+            token evaluationMode = "Automatic"
+            token evaluator:type = "execution"
+            token fabricCacheBacking = "StageWithoutHistory"
+            int2 fileFormatVersion = (1, 9)
+            token pipelineStage = "pipelineStageSimulation"
+
+            def OmniGraphNode "OnPlaybackTick"
+            {
+                token node:type = "omni.graph.action.OnPlaybackTick"
+                int node:typeVersion = 2
+                custom double outputs:deltaSeconds
+                custom double outputs:frame
+                custom uint outputs:tick (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom double outputs:time
+            }
+
+            def OmniGraphNode "Context"
+            {
+                custom uchar inputs:domain_id
+                custom bool inputs:useDomainIDEnvVar
+                token node:type = "isaacsim.ros2.bridge.ROS2Context"
+                int node:typeVersion = 2
+                custom uint64 outputs:context
+            }
+
+            def OmniGraphNode "ReadSimTime"
+            {
+                custom uint64 inputs:referenceTimeDenominator
+                custom int64 inputs:referenceTimeNumerator
+                custom bool inputs:resetOnStop = 1
+                token node:type = "isaacsim.core.nodes.IsaacReadSimulationTime"
+                int node:typeVersion = 1
+                custom double outputs:simulationTime
+            }
+
+            def OmniGraphNode "TFWorld2Odom"
+            {
+                custom string inputs:childFrameId = "odom"
+                custom uint64 inputs:context
+                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_Odometry/Context.outputs:context>
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_Odometry/OnPlaybackTick.outputs:tick>
+                custom string inputs:nodeNamespace = ""
+                custom string inputs:parentFrameId = "map"
+                custom string inputs:qosProfile
+                custom uint64 inputs:queueSize
+                custom quatd inputs:rotation
+                custom bool inputs:staticPublisher
+                custom double inputs:timeStamp
+                prepend double inputs:timeStamp.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ReadSimTime.outputs:simulationTime>
+                custom string inputs:topicName
+                custom vector3d inputs:translation
+                token node:type = "isaacsim.ros2.bridge.ROS2PublishRawTransformTree"
+                int node:typeVersion = 1
+            }
+
+            def OmniGraphNode "TFOdom2Robot" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom string inputs:childFrameId = "base_link"
+                custom uint64 inputs:context
+                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_Odometry/Context.outputs:context>
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_Odometry/OnPlaybackTick.outputs:tick>
+                custom string inputs:nodeNamespace = ""
+                custom string inputs:parentFrameId
+                custom string inputs:qosProfile
+                custom uint64 inputs:queueSize
+                custom quatd inputs:rotation
+                prepend quatd inputs:rotation.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeOdometry.outputs:orientation>
+                custom bool inputs:staticPublisher
+                custom double inputs:timeStamp
+                prepend double inputs:timeStamp.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ReadSimTime.outputs:simulationTime>
+                custom string inputs:topicName
+                custom vector3d inputs:translation
+                prepend vector3d inputs:translation.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeOdometry.outputs:position>
+                token node:type = "isaacsim.ros2.bridge.ROS2PublishRawTransformTree"
+                int node:typeVersion = 1
+                uniform float2 ui:nodegraph:node:pos = (-141.31287, -194.11404)
+            }
+
+            def OmniGraphNode "ComputeOdometry"
+            {
+                custom rel inputs:chassisPrim = </turtlebot3_burger> (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_Odometry/OnPlaybackTick.outputs:tick>
+                token node:type = "isaacsim.core.nodes.IsaacComputeOdometry"
+                int node:typeVersion = 1
+                custom vector3d outputs:angularAcceleration
+                custom vector3d outputs:angularVelocity
+                custom uint outputs:execOut (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom vector3d outputs:globalLinearAcceleration
+                custom vector3d outputs:globalLinearVelocity
+                custom vector3d outputs:linearAcceleration
+                custom vector3d outputs:linearVelocity
+                custom quatd outputs:orientation
+                custom vector3d outputs:position
+            }
+
+            def OmniGraphNode "PublisherOdometry"
+            {
+                custom vector3d inputs:angularVelocity
+                prepend vector3d inputs:angularVelocity.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeOdometry.outputs:angularVelocity>
+                custom string inputs:chassisFrameId = "base_link"
+                custom uint64 inputs:context
+                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_Odometry/Context.outputs:context>
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeOdometry.outputs:execOut>
+                custom vector3d inputs:linearVelocity
+                prepend vector3d inputs:linearVelocity.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeOdometry.outputs:linearVelocity>
+                custom string inputs:nodeNamespace = ""
+                custom string inputs:odomFrameId
+                custom quatd inputs:orientation
+                prepend quatd inputs:orientation.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeOdometry.outputs:orientation>
+                custom vector3d inputs:position
+                prepend vector3d inputs:position.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeOdometry.outputs:position>
+                custom bool inputs:publishRawVelocities
+                custom string inputs:qosProfile
+                custom uint64 inputs:queueSize
+                custom vector3d inputs:robotFront
+                custom double inputs:timeStamp
+                prepend double inputs:timeStamp.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ReadSimTime.outputs:simulationTime>
+                custom string inputs:topicName = "/odom"
+                token node:type = "isaacsim.ros2.bridge.ROS2PublishOdometry"
+                int node:typeVersion = 1
+            }
+
+            def OmniGraphNode "ComputeTFRobot"
+            {
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_Odometry/OnPlaybackTick.outputs:tick>
+                custom rel inputs:parentPrim = </turtlebot3_burger/base_link> (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom rel inputs:targetPrims = </turtlebot3_burger> (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                token node:type = "isaacsim.core.nodes.IsaacComputeTransformTree"
+                int node:typeVersion = 1
+                custom token[] outputs:childFrames
+                custom uint outputs:execOut (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom double4[] outputs:orientations
+                custom token[] outputs:parentFrames
+                custom double3[] outputs:translations
+            }
+
+            def OmniGraphNode "TFRobot"
+            {
+                custom token[] inputs:childFrames
+                prepend token[] inputs:childFrames.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeTFRobot.outputs:childFrames>
+                custom uint64 inputs:context
+                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_Odometry/Context.outputs:context>
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeTFRobot.outputs:execOut>
+                custom string inputs:nodeNamespace = ""
+                custom double4[] inputs:orientations
+                prepend double4[] inputs:orientations.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeTFRobot.outputs:orientations>
+                custom token[] inputs:parentFrames
+                prepend token[] inputs:parentFrames.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeTFRobot.outputs:parentFrames>
+                custom rel inputs:parentPrim (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom string inputs:qosProfile
+                custom uint64 inputs:queueSize
+                custom bool inputs:staticPublisher
+                custom rel inputs:targetPrims (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom double inputs:timeStamp
+                prepend double inputs:timeStamp.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ReadSimTime.outputs:simulationTime>
+                custom string inputs:topicName = "/tf"
+                custom double3[] inputs:translations
+                prepend double3[] inputs:translations.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeTFRobot.outputs:translations>
+                token node:type = "isaacsim.ros2.bridge.ROS2PublishTransformTree"
+                int node:typeVersion = 1
+            }
+        }
+
+        def OmniGraph "ROS_diff_drive"
+        {
+            token evaluationMode = "Automatic"
+            token evaluator:type = "execution"
+            token fabricCacheBacking = "StageWithoutHistory"
+            int2 fileFormatVersion = (1, 9)
+            token pipelineStage = "pipelineStageSimulation"
+
+            def OmniGraphNode "on_playback_tick" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                token node:type = "omni.graph.action.OnPlaybackTick"
+                int node:typeVersion = 2
+                custom double outputs:deltaSeconds
+                custom double outputs:frame
+                custom uint outputs:tick (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom double outputs:time
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (126, 244)
+            }
+
+            def OmniGraphNode "ros2_context" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom uchar inputs:domain_id
+                custom bool inputs:useDomainIDEnvVar
+                token node:type = "isaacsim.ros2.bridge.ROS2Context"
+                int node:typeVersion = 2
+                custom uint64 outputs:context
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (112, 63)
+            }
+
+            def OmniGraphNode "ros2_subscribe_twist" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom uint64 inputs:context
+                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/ros2_context.outputs:context>
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/on_playback_tick.outputs:tick>
+                custom string inputs:nodeNamespace
+                custom string inputs:qosProfile
+                custom uint64 inputs:queueSize
+                custom string inputs:topicName
+                token node:type = "isaacsim.ros2.bridge.ROS2SubscribeTwist"
+                int node:typeVersion = 1
+                custom vector3d outputs:angularVelocity
+                custom uint outputs:execOut (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom vector3d outputs:linearVelocity
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (403.1369, 9.636963)
+            }
+
+            def OmniGraphNode "scale_to_from_stage_units" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom token inputs:conversion (
+                    allowedTokens = ["Convert to stage units", "Convert to meters"]
+                )
+                custom token inputs:value
+                prepend token inputs:value.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/ros2_subscribe_twist.outputs:linearVelocity>
+                token node:type = "isaacsim.core.nodes.OgnIsaacScaleToFromStageUnit"
+                int node:typeVersion = 1
+                custom token outputs:result
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (702.6763, 288.29712)
+            }
+
+            def OmniGraphNode "break_3_vector" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom token inputs:tuple
+                prepend token inputs:tuple.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/ros2_subscribe_twist.outputs:angularVelocity>
+                token node:type = "omni.graph.nodes.BreakVector3"
+                int node:typeVersion = 1
+                custom token outputs:x
+                custom token outputs:y
+                custom token outputs:z
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (697.43256, 4.841446)
+            }
+
+            def OmniGraphNode "break_3_vector_01" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom token inputs:tuple
+                prepend token inputs:tuple.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/scale_to_from_stage_units.outputs:result>
+                token node:type = "omni.graph.nodes.BreakVector3"
+                int node:typeVersion = 1
+                custom token outputs:x
+                custom token outputs:y
+                custom token outputs:z
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (972.65173, 212.51471)
+            }
+
+            def OmniGraphNode "constant_token" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom token inputs:value = "wheel_right_joint"
+                token node:type = "omni.graph.nodes.ConstantToken"
+                int node:typeVersion = 1
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (664.49243, 571.9872)
+            }
+
+            def OmniGraphNode "constant_token_01" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom token inputs:value = "wheel_left_joint"
+                token node:type = "omni.graph.nodes.ConstantToken"
+                int node:typeVersion = 1
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (664.39105, 455.7186)
+            }
+
+            def OmniGraphNode "make_array" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom int inputs:arraySize = 2
+                custom token inputs:arrayType (
+                    allowedTokens = ["auto", "bool[]", "double[]", "float[]", "half[]", "int[]", "int64[]", "token[]", "uchar[]", "uint[]", "uint64[]", "double[2][]", "double[3][]", "double[4][]", "matrixd[2][]", "matrixd[3][]", "matrixd[4][]", "float[2][]", "float[3][]", "float[4][]", "half[2][]", "half[3][]", "half[4][]", "int[2][]", "int[3][]", "int[4][]", "timecode[]", "frame[4][]", "colord[3][]", "colorf[3][]", "colorh[3][]", "colord[4][]", "colorf[4][]", "colorh[4][]", "normald[3][]", "normalf[3][]", "normalh[3][]", "pointd[3][]", "pointf[3][]", "pointh[3][]", "quatd[4][]", "quatf[4][]", "quath[4][]", "texcoordd[2][]", "texcoordf[2][]", "texcoordh[2][]", "texcoordd[3][]", "texcoordf[3][]", "texcoordh[3][]", "vectord[3][]", "vectorf[3][]", "vectorh[3][]"]
+                )
+                custom token inputs:input0
+                delete token inputs:input0.connect = [
+                    </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>,
+                    </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>,
+                ]
+                prepend token inputs:input0.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>
+                custom token inputs:input1 (
+                    customData = {
+                        string ExtendedAttributeType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
+                        dictionary omni = {
+                            dictionary graph = {
+                                string attrType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
+                            }
+                        }
+                    }
+                )
+                delete token inputs:input1.connect = [
+                    </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>,
+                    </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>,
+                ]
+                prepend token inputs:input1.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>
+                token node:type = "omni.graph.nodes.ConstructArray"
+                int node:typeVersion = 1
+                custom token outputs:array
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (904.6968, 494.2918)
+            }
+
+            def OmniGraphNode "differential_controller" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom double inputs:angularVelocity
+                prepend double inputs:angularVelocity.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/break_3_vector.outputs:z>
+                custom double inputs:dt
+                prepend double inputs:dt.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/on_playback_tick.outputs:deltaSeconds>
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/on_playback_tick.outputs:tick>
+                custom double inputs:linearVelocity
+                prepend double inputs:linearVelocity.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/break_3_vector_01.outputs:x>
+                custom double inputs:maxAcceleration
+                custom double inputs:maxAngularAcceleration
+                custom double inputs:maxAngularSpeed
+                custom double inputs:maxDeceleration
+                custom double inputs:maxLinearSpeed
+                custom double inputs:maxWheelSpeed
+                custom double inputs:wheelDistance = 0.118
+                custom double inputs:wheelRadius = 0.033
+                token node:type = "isaacsim.robot.wheeled_robots.DifferentialController"
+                int node:typeVersion = 1
+                custom double[] outputs:velocityCommand
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (1239.9229, 69.12985)
+            }
+
+            def OmniGraphNode "articulation_controller" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom double[] inputs:effortCommand
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/on_playback_tick.outputs:tick>
+                custom int[] inputs:jointIndices
+                custom token[] inputs:jointNames
+                prepend token[] inputs:jointNames.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/make_array.outputs:array>
+                custom double[] inputs:positionCommand
+                custom string inputs:robotPath
+                custom rel inputs:targetPrim = </turtlebot3_burger> (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom double[] inputs:velocityCommand
+                prepend double[] inputs:velocityCommand.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/differential_controller.outputs:velocityCommand>
+                token node:type = "isaacsim.core.nodes.IsaacArticulationController"
+                int node:typeVersion = 1
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (1502.2386, 348.55823)
+            }
+        }
+    }
+
+    over "base_scan"
+    {
+        string isaac:nameOverride (
+            displayName = "Name Override"
+        )
+
+        def OmniLidar "Example_Rotary_2D" (
+            prepend references = @https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Sensors/NVIDIA/Example_Rotary_2D.usda@
+        )
+        {
+            custom string[] _replicator:rendervar:GenericModelOutput:channels = ["NONE"]
+            float omni:sensor:Core:farRangeM = 10
+            float omni:sensor:Core:nearRangeM = 0.05
+            quatd xformOp:orient = (1, 0, 0, 0)
+            double3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+    }
+
+    over "base_link"
+    {
+    }
+
+    over "caster_back_link"
+    {
+    }
+    variantSet "Physics" = {
+        "None" (
+            prepend references = @./configuration/turtlebot3_burger_base.usd@
+        ) {
+            over "joints" (
+                active = false
+            )
+            {
+            }
+
+        }
+        "PhysX" (
+            prepend payload = @./configuration/turtlebot3_burger_physics.usd@
+        ) {
+
+        }
+    }
+    variantSet "Sensor" = {
+        "None" {
+
+        }
+        "Sensors" (
+            prepend payload = @./configuration/turtlebot3_burger_sensor.usd@
+        ) {
+
+        }
+    }
+}
+
+def "Render" (
+    hide_in_stage_window = true
+    no_delete = true
+)
+{
+    def "OmniverseKit"
+    {
+        def "HydraTextures" (
+            hide_in_stage_window = true
+            no_delete = true
+        )
+        {
+            def RenderProduct "omni_kit_widget_viewport_ViewportTexture_0" (
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1", "OmniRtxSettingsParticleFieldAPI_1"]
+                hide_in_stage_window = true
+                no_delete = true
+            )
+            {
+                rel camera = </OmniverseKit_Persp>
+                token omni:rtx:ambientOcclusion:denoiserMode = "none"
+                token omni:rtx:background:source:texture:textureMode = "repeatMirrored"
+                token omni:rtx:background:source:type = "domeLight"
+                bool omni:rtx:debug:view:pixelDebug:enableFixedTextPos = 1
+                token omni:rtx:directLighting:sampledLighting:denoisingTechnique = "None"
+                bool omni:rtx:dlss:frameGeneration = 0
+                float3 omni:rtx:domeLight:rotationAxis = (0, 0, 1)
+                bool omni:rtx:indirectDiffuse:denoiser:enabled = 0
+                bool omni:rtx:material:db:syncLoads = 1
+                token omni:rtx:post:dlss:execMode = "performance"
+                bool omni:rtx:post:registeredCompositing:invertColorCorrection = 1
+                bool omni:rtx:post:registeredCompositing:invertToneMap = 1
+                bool omni:rtx:pt:adaptiveSampling:filterError = 0
+                uint omni:rtx:pt:adaptiveSampling:fixedSppIterations = 2
+                uint omni:rtx:pt:maxSamplesPerLaunch = 2073600
+                uint omni:rtx:pt:mgpu:maxPixelsPerRegionExponent = 12
+                bool omni:rtx:reflections:denoiser:enabled = 0
+                token omni:rtx:rendermode = "RealTimePathTracing"
+                color3f omni:rtx:rt:ambientLight:color = (0.1, 0.1, 0.1)
+                bool omni:rtx:rt:demoire = 0
+                bool omni:rtx:rt:ecoMode:enabled
+                bool omni:rtx:rt:lightcache:spatialCache:dontResolveConflicts = 1
+                int omni:rtx:rt:sss:samples = 1
+                uint omni:rtx:rtpt:maxVolumeBounces = 15
+                float omni:rtx:rtpt:modulatingRoughnessThreshold = 0.08
+                bool omni:rtx:scene:hydra:materialSyncLoads = 1
+                bool omni:rtx:scene:hydra:mdlMaterialWarmup = 1
+                rel orderedVars = </Render/Vars/LdrColor>
+                custom bool overrideClipRange = 0
+                uniform int2 resolution = (1280, 720)
+            }
+
+            def RenderProduct "Replicator" (
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1", "OmniRtxSettingsParticleFieldAPI_1"]
+                hide_in_stage_window = true
+                no_delete = true
+            )
+            {
+                rel camera = </turtlebot3_burger/base_scan/Example_Rotary_2D>
+                bool omni:rtx:material:db:syncLoads = 1
+                bool omni:rtx:rt:ecoMode:enabled
+                bool omni:rtx:scene:hydra:materialSyncLoads = 1
+                rel orderedVars = </Render/Vars/LdrColor>
+                custom bool overrideClipRange = 0
+                uniform int2 resolution = (1280, 720)
+            }
+        }
+    }
+
+    def RenderSettings "OmniverseGlobalRenderSettings" (
+        prepend apiSchemas = ["OmniRtxSettingsGlobalRtAdvancedAPI_1", "OmniRtxSettingsGlobalPtAdvancedAPI_1"]
+        no_delete = true
+    )
+    {
+        rel products = [
+            </Render/OmniverseKit/HydraTextures/omni_kit_widget_viewport_ViewportTexture_0>,
+            </Render/OmniverseKit/HydraTextures/Replicator>,
+        ]
+    }
+
+    def "Vars"
+    {
+        def RenderVar "LdrColor" (
+            hide_in_stage_window = true
+            no_delete = true
+        )
+        {
+            uniform string sourceName = "LdrColor"
+            uniform token sourceType = "raw"
+        }
+
+        def RenderVar "GenericModelOutput" (
+            prepend apiSchemas = ["RenderVarChannelsAPI"]
+        )
+        {
+            custom string[] channels = ["NONE"]
+            uniform string sourceName = "GenericModelOutput"
+        }
+    }
+}
+
+over "OmniverseKit_Persp" (
+    prepend apiSchemas = ["OmniRtxCameraAutoExposureAPI_1", "OmniRtxCameraExposureAPI_1"]
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (0.01, 10000000)
+    float exposure:fStop = 5
+    float exposure:responsivity = 1.1026709
+    float exposure:time = 0.02
+    float focalLength = 18.147562
+    float focusDistance = 400
+    custom uniform vector3d omni:kit:centerOfInterest = (2.23479088342541e-16, 6.704372650276232e-17, -1.9371611034833838)
+    float3 xformOp:rotateXYZ = (75.77147, -3.0215268e-14, 169.27275)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0.025930166940949816, 0.4996126467842989, 0.22557566333258397)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
+over "OmniverseKit_Front" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (1, 10000000)
+    float horizontalAperture = 50
+    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -5)
+    token projection = "orthographic"
+    float verticalAperture = 50
+    float3 xformOp:rotateXYZ = (90, -1.2722219e-14, 90)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (5, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
+over "OmniverseKit_Right" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (1, 10000000)
+    float horizontalAperture = 50
+    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -5)
+    token projection = "orthographic"
+    float verticalAperture = 50
+    float3 xformOp:rotateXYZ = (90, -1.41245e-30, 1.2722219e-14)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, -5, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
+over "OmniverseKit_Top" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (1, 10000000)
+    float horizontalAperture = 50
+    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -5)
+    token projection = "orthographic"
+    float verticalAperture = 50
+    float3 xformOp:rotateXYZ = (-1.2722219e-14, -7.016709e-15, -90)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, 0, 5)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
