@@ -779,7 +779,7 @@ def Xform "turtlebot3_burger" (
         {
             custom string[] _replicator:rendervar:GenericModelOutput:channels = ["NONE"]
             float omni:sensor:Core:farRangeM = 10
-            float omni:sensor:Core:nearRangeM = 0.05
+            float omni:sensor:Core:nearRangeM = 0.2
             quatd xformOp:orient = (1, 0, 0, 0)
             double3 xformOp:scale = (1, 1, 1)
             double3 xformOp:translate = (0, 0, 0)

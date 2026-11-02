@@ -1,0 +1,783 @@
+#usda 1.0
+(
+    customLayerData = {
+        dictionary audioSettings = {
+            double dopplerLimit = 2
+            double dopplerScale = 1
+            double nonSpatialTimeScale = 1
+            double spatialTimeScale = 1
+            double speedOfSound = 340
+        }
+        dictionary cameraSettings = {
+            dictionary Front = {
+                double3 position = (1000.000000000002, -2.220446049250317e-13, 0)
+                double radius = 5
+            }
+            dictionary OmniverseKit_Front = {
+                double3 position = (0, 0, 1000)
+                double radius = 10
+                double3 target = (0, 0, 900)
+            }
+            dictionary OmniverseKit_Persp = {
+                double3 position = (7711.011706823173, 7707.511706823175, 8947.44871854192)
+                double radius = 100
+                double3 target = (7653.27667990421, 7649.776679904212, 8889.713691622957)
+            }
+            dictionary OmniverseKit_Right = {
+                double3 position = (-1000, -4.930380657631324e-30, -2.220446049250313e-13)
+                double radius = 10
+                double3 target = (-900, -4.930380657631324e-30, -1.9984014443252818e-13)
+            }
+            dictionary OmniverseKit_Top = {
+                double3 position = (2.3869795029440866e-13, 1000, -2.6645352591003757e-13)
+                double radius = 10
+                double3 target = (1.9984014443252818e-13, 900, -1.9984014443252818e-13)
+            }
+            dictionary Perspective = {
+                double3 position = (-8.418267768772811, -14.152088611524151, 11.047038053175195)
+                double3 target = (8.256369369160314, 31.507270255925043, -19.3023055693749)
+            }
+            dictionary Right = {
+                double3 position = (0, -1000, -2.220446049250313e-13)
+                double radius = 5
+            }
+            dictionary Top = {
+                double3 position = (0, 0, 49999.999997496605)
+                double radius = 2.8629262924194334
+            }
+            string boundCamera = "/OmniverseKit_Persp"
+        }
+        dictionary navmeshSettings = {
+            double agentHeight = 180
+            double agentRadius = 20
+            bool excludeRigidBodies = 1
+            int ver = 2
+            double voxelCeiling = 460
+        }
+        dictionary omni_layer = {
+            string authoring_layer = "./obstacle_world.usda"
+            dictionary locked = {
+            }
+            dictionary muteness = {
+            }
+        }
+        int refinementOverrideImplVersion = 0
+        dictionary renderSettings = {
+        }
+    }
+    defaultPrim = "World"
+    endTimeCode = 1000000
+    metersPerUnit = 1
+    startTimeCode = 0
+    timeCodesPerSecond = 60
+    upAxis = "Z"
+)
+
+def Xform "World" (
+    kind = "component"
+)
+{
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+
+    def Xform "Environment" (
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </World/Looks/theGrid> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        token visibility = "inherited"
+        float3 xformOp:rotateZYX = (0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateZYX", "xformOp:scale"]
+
+        def Xform "obstacles"
+        {
+            quatd xformOp:orient = (1, 0, 0, 0)
+            double3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Cube "Cube" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 1
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.5, 0.5, 0.5)
+                double3 xformOp:translate = (1.5, 0, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "Cube_01" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 1
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.5, 0.5, 0.5)
+                double3 xformOp:translate = (3.761515368309554, 0, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (2.584673173940909, 1.6087051081396044, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_01" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (2.584673173940909, 3.045581332556258, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_02" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (2.584673173940909, -1.5784067821030892, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_03" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (2.584673173940909, -3.3827107573237463, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_04" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (1.3898322236981326, 2.3250852304018594, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_05" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (1.3898322236981326, -2.5197820508094195, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_06" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (-1.797026295822679, 3.045581332556258, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_07" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (-1.797026295822679, 1.6087051081396044, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_08" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (-2.9918672460654556, 2.3250852304018594, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_09" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (-1.797026295822679, -1.8492903581792253, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_10" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (-1.797026295822679, -3.286166582595879, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cylinder "Cylinder_11" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                uniform token axis = "Z"
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                double height = 1
+                rel material:binding = </World/Looks/obstacles_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double radius = 0.5
+                custom bool refinementEnableOverride = 1
+                custom int refinementLevel = 2
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.25, 0.25, 0.5)
+                double3 xformOp:translate = (-2.9918672460654556, -2.569786460333624, 0.25)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+        }
+
+        def Xform "walls"
+        {
+            quatd xformOp:orient = (1, 0, 0, 0)
+            double3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+            def Cube "Cube" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </World/Looks/walls_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 1
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (10, 0.2, 1)
+                double3 xformOp:translate = (0, 5, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "Cube_01" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </World/Looks/walls_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 1
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (10, 0.2, 1)
+                double3 xformOp:translate = (0, -5, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "Cube_02" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </World/Looks/walls_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 1
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.2, 10.2, 1)
+                double3 xformOp:translate = (-5.1, 0, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "Cube_03" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </World/Looks/walls_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 1
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.2, 10.2, 1)
+                double3 xformOp:translate = (5.1, 0, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "Cube_04" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </World/Looks/walls_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 1
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (5, 0.2, 1)
+                double3 xformOp:translate = (-2.5, 0, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+
+            def Cube "Cube_05" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                float3[] extent = [(-0.5, -0.5, -0.5), (0.5, 0.5, 0.5)]
+                rel material:binding = </World/Looks/walls_mat> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+                double size = 1
+                quatd xformOp:orient = (1, 0, 0, 0)
+                double3 xformOp:scale = (0.2, 6.5, 1)
+                double3 xformOp:translate = (0, 0, 0.5)
+                uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            }
+        }
+
+        def Mesh "Geometry" (
+            prepend apiSchemas = ["MaterialBindingAPI"]
+        )
+        {
+            float3[] extent = [(-0.5, -0.5, 0), (0.5, 0.5, 0)]
+            int[] faceVertexCounts = [4]
+            int[] faceVertexIndices = [0, 1, 3, 2]
+            normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)] (
+                interpolation = "faceVarying"
+            )
+            point3f[] points = [(-0.5, -0.5, 0), (0.5, -0.5, 0), (-0.5, 0.5, 0), (0.5, 0.5, 0)]
+            texCoord2f[] primvars:st = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+                interpolation = "faceVarying"
+            )
+            uniform token subdivisionScheme = "none"
+            token visibility = "inherited"
+            quatd xformOp:orient = (1, 0, 0, 0)
+            double3 xformOp:scale = (100, 100, 1)
+            double3 xformOp:translate = (-0.425, 0.425, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
+    }
+
+    def Scope "Looks" (
+        kind = ""
+    )
+    {
+        def Material "obstacles_mat"
+        {
+            token outputs:mdl:displacement.connect = </World/Looks/obstacles_mat/Shader.outputs:out>
+            token outputs:mdl:surface.connect = </World/Looks/obstacles_mat/Shader.outputs:out>
+            token outputs:mdl:volume.connect = </World/Looks/obstacles_mat/Shader.outputs:out>
+
+            def Shader "Shader"
+            {
+                uniform token info:implementationSource = "sourceAsset"
+                uniform asset info:mdl:sourceAsset = @OmniPBR.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "OmniPBR"
+                color3f inputs:diffuse_color_constant = (0.9498069, 0.0403393, 0.0403393)
+                token outputs:out (
+                    renderType = "material"
+                )
+            }
+        }
+
+        def Material "walls_mat"
+        {
+            token outputs:mdl:displacement.connect = </World/Looks/walls_mat/Shader.outputs:out>
+            token outputs:mdl:surface.connect = </World/Looks/walls_mat/Shader.outputs:out>
+            token outputs:mdl:volume.connect = </World/Looks/walls_mat/Shader.outputs:out>
+
+            def Shader "Shader"
+            {
+                uniform token info:implementationSource = "sourceAsset"
+                uniform asset info:mdl:sourceAsset = @OmniPBR.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "OmniPBR"
+                color3f inputs:diffuse_color_constant = (0.15830117, 0.1582996, 0.1582996)
+                token outputs:out (
+                    renderType = "material"
+                )
+            }
+        }
+    }
+
+    def SphereLight "SphereLight" (
+        prepend apiSchemas = ["ShapingAPI"]
+    )
+    {
+        float inputs:intensity = 1000000
+        float inputs:radius = 0.25
+        float inputs:shaping:cone:angle = 180
+        float intensity = 100000
+        float radius = 0.25
+        float shaping:cone:angle = 180
+        float shaping:cone:softness
+        float shaping:focus
+        color3f shaping:focusTint
+        asset shaping:ies:file
+        token visibility = "inherited"
+        quatd xformOp:orient = (0.5000000000000001, 0.5, 0.49999999999999994, 0.5)
+        double3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (1.458519205748705e-62, 1.313717310304516e-46, 5.303095858070305)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+    }
+
+    def Xform "GroundPlane"
+    {
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        double3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Plane "CollisionPlane" (
+            prepend apiSchemas = ["PhysicsCollisionAPI"]
+        )
+        {
+            uniform token axis = "Z"
+            uniform token purpose = "guide"
+            float3 xformOp:scale = (0.01, 0.01, 0.01)
+            uniform token[] xformOpOrder = ["xformOp:scale"]
+        }
+    }
+}
+
+def "Render" (
+    hide_in_stage_window = true
+    no_delete = true
+)
+{
+    def "OmniverseKit"
+    {
+        def "HydraTextures" (
+            hide_in_stage_window = true
+            no_delete = true
+        )
+        {
+            def RenderProduct "omni_kit_widget_viewport_ViewportTexture_0" (
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1", "OmniRtxSettingsParticleFieldAPI_1"]
+                hide_in_stage_window = true
+                no_delete = true
+            )
+            {
+                rel camera = </OmniverseKit_Persp>
+                token omni:rtx:ambientOcclusion:denoiserMode = "none"
+                token omni:rtx:background:source:texture:textureMode = "repeatMirrored"
+                token omni:rtx:background:source:type = "domeLight"
+                bool omni:rtx:debug:view:pixelDebug:enableFixedTextPos = 1
+                token omni:rtx:directLighting:sampledLighting:denoisingTechnique = "None"
+                bool omni:rtx:dlss:frameGeneration = 0
+                bool omni:rtx:indirectDiffuse:denoiser:enabled = 0
+                bool omni:rtx:material:db:nonVisualMaterialCSV:enabled = 0
+                string omni:rtx:material:db:rtSensorNameToIdMap = "DefaultMaterial:0;AsphaltStandardMaterial:1;AsphaltWeatheredMaterial:2;VegetationGrassMaterial:3;WaterStandardMaterial:4;GlassStandardMaterial:5;FiberGlassMaterial:6;MetalAlloyMaterial:7;MetalAluminumMaterial:8;MetalAluminumOxidizedMaterial:9;PlasticStandardMaterial:10;RetroMarkingsMaterial:11;RetroSignMaterial:12;RubberStandardMaterial:13;SoilClayMaterial:14;ConcreteRoughMaterial:15;ConcreteSmoothMaterial:16;OakTreeBarkMaterial:17;FabricStandardMaterial:18;PlexiGlassStandardMaterial:19;MetalSilverMaterial:20"
+                bool omni:rtx:material:db:syncLoads = 1
+                token omni:rtx:post:dlss:execMode = "performance"
+                bool omni:rtx:post:registeredCompositing:invertColorCorrection = 1
+                bool omni:rtx:post:registeredCompositing:invertToneMap = 1
+                bool omni:rtx:pt:adaptiveSampling:filterError = 0
+                uint omni:rtx:pt:adaptiveSampling:fixedSppIterations = 2
+                bool omni:rtx:pt:lightcache:cached:dontResolveConflicts = 1
+                int omni:rtx:pt:maxSamplesPerLaunch = 2073600
+                int omni:rtx:pt:mgpu:maxPixelsPerRegionExponent = 12
+                bool omni:rtx:reflections:denoiser:enabled = 0
+                token omni:rtx:rendermode = "RealTimePathTracing"
+                color3f omni:rtx:rt:ambientLight:color = (0.1, 0.1, 0.1)
+                bool omni:rtx:rt:demoire = 0
+                bool omni:rtx:rt:lightcache:spatialCache:dontResolveConflicts = 1
+                int omni:rtx:rt:sss:samples = 1
+                uint omni:rtx:rtpt:maxVolumeBounces = 15
+                float omni:rtx:rtpt:modulatingRoughnessThreshold = 0.08
+                bool omni:rtx:scene:hydra:materialSyncLoads = 1
+                bool omni:rtx:scene:hydra:mdlMaterialWarmup = 1
+                uint omni:rtx:viewTile:limit = 4294967295
+                rel orderedVars = </Render/Vars/LdrColor>
+                custom bool overrideClipRange = 0
+                uniform int2 resolution = (1280, 720)
+            }
+
+            def RenderProduct "omni_kit_widget_viewport_ViewportTexture_1" (
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1"]
+                hide_in_stage_window = true
+                no_delete = true
+            )
+            {
+                rel camera = </OmniverseKit_Persp>
+                token omni:rtx:background:source:texture:textureMode = "repeatMirrored"
+                token omni:rtx:background:source:type = "domeLight"
+                bool omni:rtx:dlss:frameGeneration = 0
+                bool omni:rtx:material:db:nonVisualMaterialCSV:enabled = 0
+                bool omni:rtx:material:db:syncLoads = 1
+                token omni:rtx:post:dlss:execMode = "performance"
+                bool omni:rtx:post:registeredCompositing:invertColorCorrection = 1
+                bool omni:rtx:post:registeredCompositing:invertToneMap = 1
+                bool omni:rtx:pt:lightcache:cached:dontResolveConflicts = 1
+                int omni:rtx:pt:maxSamplesPerLaunch = 2073600
+                int omni:rtx:pt:mgpu:maxPixelsPerRegionExponent = 12
+                color3f omni:rtx:rt:ambientLight:color = (0.1, 0.1, 0.1)
+                bool omni:rtx:rt:demoire = 0
+                bool omni:rtx:rt:lightcache:spatialCache:dontResolveConflicts = 1
+                bool omni:rtx:scene:hydra:materialSyncLoads = 1
+                bool omni:rtx:scene:hydra:mdlMaterialWarmup = 1
+                uint omni:rtx:viewTile:limit = 4294967295
+                rel orderedVars = </Render/Vars/LdrColor>
+                custom bool overrideClipRange = 0
+                uniform int2 resolution = (1280, 720)
+            }
+        }
+    }
+
+    def RenderSettings "OmniverseGlobalRenderSettings" (
+        prepend apiSchemas = ["OmniRtxSettingsGlobalRtAdvancedAPI_1", "OmniRtxSettingsGlobalPtAdvancedAPI_1"]
+        no_delete = true
+    )
+    {
+        rel products = [
+            </Render/OmniverseKit/HydraTextures/omni_kit_widget_viewport_ViewportTexture_0>,
+            </Render/OmniverseKit/HydraTextures/omni_kit_widget_viewport_ViewportTexture_1>,
+        ]
+    }
+
+    def "Vars"
+    {
+        def RenderVar "LdrColor" (
+            hide_in_stage_window = true
+            no_delete = true
+        )
+        {
+            uniform string sourceName = "LdrColor"
+        }
+    }
+}
+
+over Camera "OmniverseKit_Right" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float4[] clippingPlanes = []
+    float2 clippingRange = (1, 10000000)
+    float focalLength = 50
+    float focusDistance = 0
+    float fStop = 0
+    float horizontalAperture = 5000
+    float horizontalApertureOffset = 0
+    token projection = "orthographic"
+    float verticalAperture = 3648.4849
+    float verticalApertureOffset = 0
+    matrix4d xformOp:transform = ( (1, 0, 0, 0), (0, -2.220446049250313e-16, 1, 0), (0, -1, -2.220446049250313e-16, 0), (0, -1000, -2.220446049250313e-13, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+over Camera "OmniverseKit_Front" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float4[] clippingPlanes = []
+    float2 clippingRange = (1, 10000000)
+    float focalLength = 50
+    float focusDistance = 0
+    float fStop = 0
+    float horizontalAperture = 5000
+    float horizontalApertureOffset = 0
+    token projection = "orthographic"
+    float verticalAperture = 3648.4849
+    float verticalApertureOffset = 0
+    matrix4d xformOp:transform = ( (0, 1.0000000000000002, -2.220446049250313e-16, 0), (-2.220446049250313e-16, 0, 1.0000000000000002, 0), (1.0000000000000002, -2.220446049250313e-16, 0, 0), (1000.000000000002, -2.220446049250317e-13, 0, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+over Camera "OmniverseKit_Top" (
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float4[] clippingPlanes = []
+    float2 clippingRange = (1, 10000000)
+    float focalLength = 50
+    float focusDistance = 0
+    float fStop = 0
+    float horizontalAperture = 28.629263
+    float horizontalApertureOffset = 0
+    custom uniform vector3d omni:kit:centerOfInterest = (0, 0, -50000)
+    token projection = "orthographic"
+    float verticalAperture = 24.415663
+    float verticalApertureOffset = 0
+    matrix4d xformOp:transform = ( (-2.220446049250313e-16, -1, 0, 0), (1, -2.220446049250313e-16, 0, 0), (0, 0, 1, 0), (0, 0, 49999.999997496605, 1) )
+    uniform token[] xformOpOrder = ["xformOp:transform"]
+}
+
+over "OmniverseKit_Persp" (
+    prepend apiSchemas = ["OmniRtxCameraAutoExposureAPI_1", "OmniRtxCameraExposureAPI_1"]
+    customData = {
+        dictionary omni = {
+            dictionary kit = {
+                bool hide_in_stage_window = 1
+                bool no_delete = 1
+            }
+        }
+    }
+    hide_in_stage_window = true
+    kind = "component"
+    no_delete = true
+)
+{
+    float2 clippingRange = (0.01, 10000000)
+    float exposure:fStop = 5
+    float exposure:responsivity = 1.1026709
+    float exposure:time = 0.02
+    float focalLength = 18.147562
+    float focusDistance = 400
+    custom uniform vector3d omni:kit:centerOfInterest = (0, -2.5989205445183716e-15, -57.30535083382591)
+    float3 xformOp:rotateXYZ = (58.02106, 1.5902774e-14, -20.062016)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (-8.418267768772811, -14.152088611524151, 11.047038053175195)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
