@@ -651,7 +651,7 @@ def Xform "turtlebot3_burger" (
                 token node:type = "omni.graph.nodes.ConstantToken"
                 int node:typeVersion = 1
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (664.49243, 571.9872)
+                uniform float2 ui:nodegraph:node:pos = (620.0028, 430.6343)
             }
 
             def OmniGraphNode "constant_token_01" (
@@ -662,7 +662,7 @@ def Xform "turtlebot3_burger" (
                 token node:type = "omni.graph.nodes.ConstantToken"
                 int node:typeVersion = 1
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (664.39105, 455.7186)
+                uniform float2 ui:nodegraph:node:pos = (629.47473, 549.20294)
             }
 
             def OmniGraphNode "make_array" (
@@ -674,26 +674,21 @@ def Xform "turtlebot3_burger" (
                     allowedTokens = ["auto", "bool[]", "double[]", "float[]", "half[]", "int[]", "int64[]", "token[]", "uchar[]", "uint[]", "uint64[]", "double[2][]", "double[3][]", "double[4][]", "matrixd[2][]", "matrixd[3][]", "matrixd[4][]", "float[2][]", "float[3][]", "float[4][]", "half[2][]", "half[3][]", "half[4][]", "int[2][]", "int[3][]", "int[4][]", "timecode[]", "frame[4][]", "colord[3][]", "colorf[3][]", "colorh[3][]", "colord[4][]", "colorf[4][]", "colorh[4][]", "normald[3][]", "normalf[3][]", "normalh[3][]", "pointd[3][]", "pointf[3][]", "pointh[3][]", "quatd[4][]", "quatf[4][]", "quath[4][]", "texcoordd[2][]", "texcoordf[2][]", "texcoordh[2][]", "texcoordd[3][]", "texcoordf[3][]", "texcoordh[3][]", "vectord[3][]", "vectorf[3][]", "vectorh[3][]"]
                 )
                 custom token inputs:input0
-                delete token inputs:input0.connect = [
-                    </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>,
-                    </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>,
-                ]
-                prepend token inputs:input0.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>
+                delete token inputs:input0.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>
+                prepend token inputs:input0.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>
                 custom token inputs:input1 (
                     customData = {
                         string ExtendedAttributeType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
                         dictionary omni = {
                             dictionary graph = {
                                 string attrType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
+                                token attrValue = ""
+                                string resolvedType = "token"
                             }
                         }
                     }
                 )
-                delete token inputs:input1.connect = [
-                    </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>,
-                    </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>,
-                ]
-                prepend token inputs:input1.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>
+                prepend token inputs:input1.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>
                 token node:type = "omni.graph.nodes.ConstructArray"
                 int node:typeVersion = 1
                 custom token outputs:array
