@@ -7,8 +7,8 @@
                 double radius = 5
             }
             dictionary Perspective = {
-                double3 position = (0.025930166940949816, 0.4996126467842989, 0.22557566333258397)
-                double3 target = (-0.32357998814808825, -1.3453077408702376, -0.2505593548662808)
+                double3 position = (-0.12579190885683006, 1.0014623390995636, 0.2351425925352178)
+                double3 target = (0.22612558991434045, -0.34412482983290626, 0.01532019537370563)
             }
             dictionary Right = {
                 double3 position = (0, -5, 0)
@@ -682,12 +682,11 @@ def Xform "turtlebot3_burger" (
                         dictionary omni = {
                             dictionary graph = {
                                 string attrType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
-                                token attrValue = ""
-                                string resolvedType = "token"
                             }
                         }
                     }
                 )
+                delete token inputs:input1.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>
                 prepend token inputs:input1.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>
                 token node:type = "omni.graph.nodes.ConstructArray"
                 int node:typeVersion = 1
@@ -714,11 +713,11 @@ def Xform "turtlebot3_burger" (
                 prepend double inputs:linearVelocity.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/break_3_vector_01.outputs:x>
                 custom double inputs:maxAcceleration
                 custom double inputs:maxAngularAcceleration
-                custom double inputs:maxAngularSpeed
+                custom double inputs:maxAngularSpeed = 1
                 custom double inputs:maxDeceleration
-                custom double inputs:maxLinearSpeed
+                custom double inputs:maxLinearSpeed = 0.22
                 custom double inputs:maxWheelSpeed
-                custom double inputs:wheelDistance = 0.118
+                custom double inputs:wheelDistance = 0.16
                 custom double inputs:wheelRadius = 0.033
                 token node:type = "isaacsim.robot.wheeled_robots.DifferentialController"
                 int node:typeVersion = 1
@@ -939,10 +938,10 @@ over "OmniverseKit_Persp" (
     float exposure:time = 0.02
     float focalLength = 18.147562
     float focusDistance = 400
-    custom uniform vector3d omni:kit:centerOfInterest = (2.23479088342541e-16, 6.704372650276232e-17, -1.9371611034833838)
-    float3 xformOp:rotateXYZ = (75.77147, -3.0215268e-14, 169.27275)
+    custom uniform vector3d omni:kit:centerOfInterest = (1.6244547177656954e-16, 4.873364153297087e-17, -1.4081095985152892)
+    float3 xformOp:rotateXYZ = (81.01872, -5.96354e-14, -165.34346)
     float3 xformOp:scale = (1, 1, 1)
-    double3 xformOp:translate = (0.025930166940949816, 0.4996126467842989, 0.22557566333258397)
+    double3 xformOp:translate = (-0.12579190885683006, 1.0014623390995636, 0.2351425925352178)
     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
 }
 
@@ -1019,5 +1018,41 @@ over "OmniverseKit_Top" (
     float3 xformOp:scale = (1, 1, 1)
     double3 xformOp:translate = (0, 0, 5)
     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
+}
+
+def PhysicsScene "PhysicsScene" (
+    prepend apiSchemas = ["NewtonSceneAPI", "PhysxSceneAPI"]
+)
+{
+}
+
+def Xform "GroundPlane"
+{
+    token visibility = "inherited"
+    quatf xformOp:orient = (1, 0, 0, 0)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+    def Mesh "CollisionMesh"
+    {
+        uniform bool doubleSided = 0
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-25, -25, 0), (25, -25, 0), (25, 25, 0), (-25, 25, 0)]
+        color3f[] primvars:displayColor = [(0.5, 0.5, 0.5)]
+        texCoord2f[] primvars:st = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+            interpolation = "varying"
+        )
+    }
+
+    def Plane "CollisionPlane" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        uniform token axis = "Z"
+        uniform token purpose = "guide"
+    }
 }
 
