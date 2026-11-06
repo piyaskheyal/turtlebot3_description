@@ -647,7 +647,7 @@ def Xform "turtlebot3_burger" (
                 prepend apiSchemas = ["NodeGraphNodeAPI"]
             )
             {
-                custom token inputs:value = "wheel_right_joint"
+                custom token inputs:value = "wheel_left_joint"
                 token node:type = "omni.graph.nodes.ConstantToken"
                 int node:typeVersion = 1
                 uniform token ui:nodegraph:node:expansionState = "open"
@@ -658,7 +658,7 @@ def Xform "turtlebot3_burger" (
                 prepend apiSchemas = ["NodeGraphNodeAPI"]
             )
             {
-                custom token inputs:value = "wheel_left_joint"
+                custom token inputs:value = "wheel_right_joint"
                 token node:type = "omni.graph.nodes.ConstantToken"
                 int node:typeVersion = 1
                 uniform token ui:nodegraph:node:expansionState = "open"
