@@ -7,8 +7,8 @@
                 double radius = 5
             }
             dictionary Perspective = {
-                double3 position = (-0.12579190885683006, 1.0014623390995636, 0.2351425925352178)
-                double3 target = (0.22612558991434045, -0.34412482983290626, 0.01532019537370563)
+                double3 position = (2.3905438729809845, 2.0348574407731888, 0.8759426586908524)
+                double3 target = (0.1085582686714246, 0.07425974302554428, 0.14494353004899263)
             }
             dictionary Right = {
                 double3 position = (0, -5, 0)
@@ -21,7 +21,7 @@
             string boundCamera = "/OmniverseKit_Persp"
         }
         dictionary omni_layer = {
-            string authoring_layer = "./turtlebot3_final.usda"
+            string authoring_layer = "./turtlebot3_burger_ROS.usda"
             dictionary locked = {
             }
             dictionary muteness = {
@@ -55,9 +55,13 @@ def Xform "turtlebot3_burger" (
     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
     over "base_footprint" (
+        active = false
         delete apiSchemas = ["PhysicsArticulationRootAPI", "PhysxArticulationAPI"]
     )
     {
+        string isaac:nameOverride (
+            displayName = "Name Override"
+        )
     }
 
     over "wheel_left_link"
@@ -80,6 +84,21 @@ def Xform "turtlebot3_burger" (
         {
             float drive:angular:physics:damping = 10000000
             float drive:angular:physics:stiffness = 0
+        }
+
+        over "base_joint" (
+            active = false
+        )
+        {
+            bool[] isaac:actuator (
+                displayName = "Actuator"
+            )
+            string isaac:NameOverride (
+                displayName = "Joint Name Override"
+            )
+            token[] isaac:physics:DofOffsetOpOrder (
+                displayName = "Dof Offset Op Order"
+            )
         }
     }
 
@@ -144,139 +163,6 @@ def Xform "turtlebot3_burger" (
                 token node:type = "isaacsim.ros2.bridge.ROS2Context"
                 int node:typeVersion = 2
                 custom uint64 outputs:context
-            }
-        }
-
-        def OmniGraph "ROS_LidarRTX"
-        {
-            token evaluationMode = "Automatic"
-            token evaluator:type = "execution"
-            token fabricCacheBacking = "StageWithoutHistory"
-            int2 fileFormatVersion = (1, 9)
-            token pipelineStage = "pipelineStageSimulation"
-
-            def OmniGraphNode "OnPlaybackTick"
-            {
-                token node:type = "omni.graph.action.OnPlaybackTick"
-                int node:typeVersion = 2
-                custom double outputs:deltaSeconds
-                custom double outputs:frame
-                custom uint outputs:tick (
-                    customData = {
-                        bool isExecution = 1
-                    }
-                )
-                custom double outputs:time
-            }
-
-            def OmniGraphNode "RunOnce" (
-                prepend apiSchemas = ["NodeGraphNodeAPI"]
-            )
-            {
-                custom uint inputs:execIn (
-                    customData = {
-                        bool isExecution = 1
-                    }
-                )
-                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/OnPlaybackTick.outputs:tick>
-                token node:type = "isaacsim.core.nodes.OgnIsaacRunOneSimulationFrame"
-                int node:typeVersion = 1
-                custom uint outputs:step (
-                    customData = {
-                        bool isExecution = 1
-                    }
-                )
-                uniform float2 ui:nodegraph:node:pos = (-1177.0779, -119.25502)
-            }
-
-            def OmniGraphNode "RenderProduct" (
-                prepend apiSchemas = ["NodeGraphNodeAPI"]
-            )
-            {
-                custom rel inputs:cameraPrim = </turtlebot3_burger/base_scan/Example_Rotary_2D> (
-                    customData = {
-                        dictionary omni = {
-                            dictionary graph = {
-                                string relType = "target"
-                            }
-                        }
-                    }
-                )
-                custom bool inputs:enabled
-                custom uint inputs:execIn (
-                    customData = {
-                        bool isExecution = 1
-                    }
-                )
-                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RunOnce.outputs:step>
-                custom uint inputs:height
-                custom rel inputs:renderProductPrim (
-                    customData = {
-                        dictionary omni = {
-                            dictionary graph = {
-                                string relType = "target"
-                            }
-                        }
-                    }
-                )
-                custom uint inputs:width
-                token node:type = "isaacsim.core.nodes.IsaacCreateRenderProduct"
-                int node:typeVersion = 3
-                custom uint outputs:execOut (
-                    customData = {
-                        bool isExecution = 1
-                    }
-                )
-                custom token outputs:renderProductPath
-                uniform float2 ui:nodegraph:node:pos = (-864.01886, -167.2315)
-            }
-
-            def OmniGraphNode "Context" (
-                prepend apiSchemas = ["NodeGraphNodeAPI"]
-            )
-            {
-                custom uchar inputs:domain_id
-                custom bool inputs:useDomainIDEnvVar
-                token node:type = "isaacsim.ros2.bridge.ROS2Context"
-                int node:typeVersion = 2
-                custom uint64 outputs:context
-                uniform float2 ui:nodegraph:node:pos = (-958.9758, 111.50192)
-            }
-
-            def OmniGraphNode "LaserScanPublish" (
-                prepend apiSchemas = ["NodeGraphNodeAPI"]
-            )
-            {
-                custom uint64 inputs:context
-                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/Context.outputs:context>
-                custom bool inputs:enabled
-                custom bool inputs:enableObjectIdMap
-                custom uint inputs:execIn (
-                    customData = {
-                        bool isExecution = 1
-                    }
-                )
-                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RenderProduct.outputs:execOut>
-                custom string inputs:frameId = "base_scan"
-                custom uint inputs:frameSkipCount
-                custom bool inputs:fullScan
-                custom string inputs:nodeNamespace = ""
-                custom string inputs:objectIdMapTopicName
-                custom string inputs:qosProfile
-                custom uint64 inputs:queueSize
-                custom token inputs:renderProductPath
-                prepend token inputs:renderProductPath.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RenderProduct.outputs:renderProductPath>
-                custom bool inputs:resetSimulationTimeOnStop
-                custom token[] inputs:selectedMetadata
-                custom bool inputs:showDebugView
-                custom string inputs:topicName = "/laser_scan"
-                custom token inputs:type = "laser_scan" (
-                    allowedTokens = ["laser_scan", "point_cloud"]
-                )
-                custom bool inputs:useSystemTime
-                token node:type = "isaacsim.ros2.bridge.ROS2RtxLidarHelper"
-                int node:typeVersion = 3
-                uniform float2 ui:nodegraph:node:pos = (-497.697, -154.85289)
             }
         }
 
@@ -346,9 +232,7 @@ def Xform "turtlebot3_burger" (
                 int node:typeVersion = 1
             }
 
-            def OmniGraphNode "TFOdom2Robot" (
-                prepend apiSchemas = ["NodeGraphNodeAPI"]
-            )
+            def OmniGraphNode "TFOdom2Robot"
             {
                 custom string inputs:childFrameId = "base_link"
                 custom uint64 inputs:context
@@ -373,7 +257,6 @@ def Xform "turtlebot3_burger" (
                 prepend vector3d inputs:translation.connect = </turtlebot3_burger/Graphs/ROS_Odometry/ComputeOdometry.outputs:position>
                 token node:type = "isaacsim.ros2.bridge.ROS2PublishRawTransformTree"
                 int node:typeVersion = 1
-                uniform float2 ui:nodegraph:node:pos = (-141.31287, -194.11404)
             }
 
             def OmniGraphNode "ComputeOdometry"
@@ -459,7 +342,12 @@ def Xform "turtlebot3_burger" (
                         }
                     }
                 )
-                custom rel inputs:targetPrims = </turtlebot3_burger> (
+                custom rel inputs:targetPrims = [
+                    </turtlebot3_burger/caster_back_link>,
+                    </turtlebot3_burger/base_scan>,
+                    </turtlebot3_burger/wheel_left_link>,
+                    </turtlebot3_burger/wheel_right_link>,
+                ] (
                     customData = {
                         dictionary omni = {
                             dictionary graph = {
@@ -552,7 +440,7 @@ def Xform "turtlebot3_burger" (
                 )
                 custom double outputs:time
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (126, 244)
+                uniform float2 ui:nodegraph:node:pos = (-549.62726, -414.2044)
             }
 
             def OmniGraphNode "ros2_context" (
@@ -565,7 +453,7 @@ def Xform "turtlebot3_burger" (
                 int node:typeVersion = 2
                 custom uint64 outputs:context
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (112, 63)
+                uniform float2 ui:nodegraph:node:pos = (-556.698, -574.47644)
             }
 
             def OmniGraphNode "ros2_subscribe_twist" (
@@ -594,7 +482,7 @@ def Xform "turtlebot3_burger" (
                 )
                 custom vector3d outputs:linearVelocity
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (403.1369, 9.636963)
+                uniform float2 ui:nodegraph:node:pos = (-260.25717, -586.63605)
             }
 
             def OmniGraphNode "scale_to_from_stage_units" (
@@ -610,7 +498,7 @@ def Xform "turtlebot3_burger" (
                 int node:typeVersion = 1
                 custom token outputs:result
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (702.6763, 288.29712)
+                uniform float2 ui:nodegraph:node:pos = (35.770752, -441.44583)
             }
 
             def OmniGraphNode "break_3_vector" (
@@ -625,7 +513,7 @@ def Xform "turtlebot3_burger" (
                 custom token outputs:y
                 custom token outputs:z
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (697.43256, 4.841446)
+                uniform float2 ui:nodegraph:node:pos = (61.536034, -625.7666)
             }
 
             def OmniGraphNode "break_3_vector_01" (
@@ -640,59 +528,7 @@ def Xform "turtlebot3_burger" (
                 custom token outputs:y
                 custom token outputs:z
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (972.65173, 212.51471)
-            }
-
-            def OmniGraphNode "constant_token" (
-                prepend apiSchemas = ["NodeGraphNodeAPI"]
-            )
-            {
-                custom token inputs:value = "wheel_left_joint"
-                token node:type = "omni.graph.nodes.ConstantToken"
-                int node:typeVersion = 1
-                uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (620.0028, 430.6343)
-            }
-
-            def OmniGraphNode "constant_token_01" (
-                prepend apiSchemas = ["NodeGraphNodeAPI"]
-            )
-            {
-                custom token inputs:value = "wheel_right_joint"
-                token node:type = "omni.graph.nodes.ConstantToken"
-                int node:typeVersion = 1
-                uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (629.47473, 549.20294)
-            }
-
-            def OmniGraphNode "make_array" (
-                prepend apiSchemas = ["NodeGraphNodeAPI"]
-            )
-            {
-                custom int inputs:arraySize = 2
-                custom token inputs:arrayType (
-                    allowedTokens = ["auto", "bool[]", "double[]", "float[]", "half[]", "int[]", "int64[]", "token[]", "uchar[]", "uint[]", "uint64[]", "double[2][]", "double[3][]", "double[4][]", "matrixd[2][]", "matrixd[3][]", "matrixd[4][]", "float[2][]", "float[3][]", "float[4][]", "half[2][]", "half[3][]", "half[4][]", "int[2][]", "int[3][]", "int[4][]", "timecode[]", "frame[4][]", "colord[3][]", "colorf[3][]", "colorh[3][]", "colord[4][]", "colorf[4][]", "colorh[4][]", "normald[3][]", "normalf[3][]", "normalh[3][]", "pointd[3][]", "pointf[3][]", "pointh[3][]", "quatd[4][]", "quatf[4][]", "quath[4][]", "texcoordd[2][]", "texcoordf[2][]", "texcoordh[2][]", "texcoordd[3][]", "texcoordf[3][]", "texcoordh[3][]", "vectord[3][]", "vectorf[3][]", "vectorh[3][]"]
-                )
-                custom token inputs:input0
-                delete token inputs:input0.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>
-                prepend token inputs:input0.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>
-                custom token inputs:input1 (
-                    customData = {
-                        string ExtendedAttributeType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
-                        dictionary omni = {
-                            dictionary graph = {
-                                string attrType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
-                            }
-                        }
-                    }
-                )
-                delete token inputs:input1.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>
-                prepend token inputs:input1.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>
-                token node:type = "omni.graph.nodes.ConstructArray"
-                int node:typeVersion = 1
-                custom token outputs:array
-                uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (904.6968, 494.2918)
+                uniform float2 ui:nodegraph:node:pos = (317.20712, -453.33734)
             }
 
             def OmniGraphNode "differential_controller" (
@@ -718,12 +554,65 @@ def Xform "turtlebot3_burger" (
                 custom double inputs:maxLinearSpeed = 0.22
                 custom double inputs:maxWheelSpeed
                 custom double inputs:wheelDistance = 0.16
-                custom double inputs:wheelRadius = 0.033
+                custom double inputs:wheelRadius = 0.025
                 token node:type = "isaacsim.robot.wheeled_robots.DifferentialController"
                 int node:typeVersion = 1
                 custom double[] outputs:velocityCommand
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (1239.9229, 69.12985)
+                uniform float2 ui:nodegraph:node:pos = (564.14136, -689.39996)
+            }
+
+            def OmniGraphNode "make_array" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom int inputs:arraySize = 2
+                custom token inputs:arrayType (
+                    allowedTokens = ["auto", "bool[]", "double[]", "float[]", "half[]", "int[]", "int64[]", "token[]", "uchar[]", "uint[]", "uint64[]", "double[2][]", "double[3][]", "double[4][]", "matrixd[2][]", "matrixd[3][]", "matrixd[4][]", "float[2][]", "float[3][]", "float[4][]", "half[2][]", "half[3][]", "half[4][]", "int[2][]", "int[3][]", "int[4][]", "timecode[]", "frame[4][]", "colord[3][]", "colorf[3][]", "colorh[3][]", "colord[4][]", "colorf[4][]", "colorh[4][]", "normald[3][]", "normalf[3][]", "normalh[3][]", "pointd[3][]", "pointf[3][]", "pointh[3][]", "quatd[4][]", "quatf[4][]", "quath[4][]", "texcoordd[2][]", "texcoordf[2][]", "texcoordh[2][]", "texcoordd[3][]", "texcoordf[3][]", "texcoordh[3][]", "vectord[3][]", "vectorf[3][]", "vectorh[3][]"]
+                )
+                custom token inputs:input0
+                delete token inputs:input0.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>
+                prepend token inputs:input0.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token.inputs:value>
+                custom token inputs:input1 (
+                    customData = {
+                        string ExtendedAttributeType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
+                        dictionary omni = {
+                            dictionary graph = {
+                                string attrType = "Union-->bool,colord[3],colord[4],colorf[3],colorf[4],colorh[3],colorh[4],double,double[2],double[3],double[4],float,float[2],float[3],float[4],frame[4],half,half[2],half[3],half[4],int,int64,int[2],int[3],int[4],matrixd[2],matrixd[3],matrixd[4],normald[3],normalf[3],normalh[3],pointd[3],pointf[3],pointh[3],quatd[4],quatf[4],quath[4],texcoordd[2],texcoordd[3],texcoordf[2],texcoordf[3],texcoordh[2],texcoordh[3],timecode,token,transform[4],uchar,uint,uint64,vectord[3],vectorf[3],vectorh[3]"
+                                token attrValue = ""
+                                string resolvedType = "token"
+                            }
+                        }
+                    }
+                )
+                prepend token inputs:input1.connect = </turtlebot3_burger/Graphs/ROS_diff_drive/constant_token_01.inputs:value>
+                token node:type = "omni.graph.nodes.ConstructArray"
+                int node:typeVersion = 1
+                custom token outputs:array
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (544.87823, -251.84479)
+            }
+
+            def OmniGraphNode "constant_token" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom token inputs:value = "wheel_left_joint"
+                token node:type = "omni.graph.nodes.ConstantToken"
+                int node:typeVersion = 1
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (301.02643, -250.44325)
+            }
+
+            def OmniGraphNode "constant_token_01" (
+                prepend apiSchemas = ["NodeGraphNodeAPI"]
+            )
+            {
+                custom token inputs:value = "wheel_right_joint"
+                token node:type = "omni.graph.nodes.ConstantToken"
+                int node:typeVersion = 1
+                uniform token ui:nodegraph:node:expansionState = "open"
+                uniform float2 ui:nodegraph:node:pos = (316.44232, -145.33484)
             }
 
             def OmniGraphNode "articulation_controller" (
@@ -756,28 +645,129 @@ def Xform "turtlebot3_burger" (
                 token node:type = "isaacsim.core.nodes.IsaacArticulationController"
                 int node:typeVersion = 1
                 uniform token ui:nodegraph:node:expansionState = "open"
-                uniform float2 ui:nodegraph:node:pos = (1502.2386, 348.55823)
+                uniform float2 ui:nodegraph:node:pos = (882.30054, -501.19827)
             }
         }
-    }
 
-    over "base_scan"
-    {
-        string isaac:nameOverride (
-            displayName = "Name Override"
-        )
-
-        def OmniLidar "Example_Rotary_2D" (
-            prepend references = @https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.0/Isaac/Sensors/NVIDIA/Example_Rotary_2D.usda@
-        )
+        def OmniGraph "ROS_LidarRTX"
         {
-            custom string[] _replicator:rendervar:GenericModelOutput:channels = ["NONE"]
-            float omni:sensor:Core:farRangeM = 10
-            float omni:sensor:Core:nearRangeM = 0.2
-            quatd xformOp:orient = (1, 0, 0, 0)
-            double3 xformOp:scale = (1, 1, 1)
-            double3 xformOp:translate = (0, 0, 0)
-            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+            token evaluationMode = "Automatic"
+            token evaluator:type = "execution"
+            token fabricCacheBacking = "StageWithoutHistory"
+            int2 fileFormatVersion = (1, 9)
+            token pipelineStage = "pipelineStageSimulation"
+
+            def OmniGraphNode "OnPlaybackTick"
+            {
+                token node:type = "omni.graph.action.OnPlaybackTick"
+                int node:typeVersion = 2
+                custom double outputs:deltaSeconds
+                custom double outputs:frame
+                custom uint outputs:tick (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom double outputs:time
+            }
+
+            def OmniGraphNode "Context"
+            {
+                custom uchar inputs:domain_id
+                custom bool inputs:useDomainIDEnvVar
+                token node:type = "isaacsim.ros2.bridge.ROS2Context"
+                int node:typeVersion = 2
+                custom uint64 outputs:context
+            }
+
+            def OmniGraphNode "RunOnce"
+            {
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/OnPlaybackTick.outputs:tick>
+                token node:type = "isaacsim.core.nodes.OgnIsaacRunOneSimulationFrame"
+                int node:typeVersion = 1
+                custom uint outputs:step (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+            }
+
+            def OmniGraphNode "RenderProduct"
+            {
+                custom rel inputs:cameraPrim = </turtlebot3_burger/base_scan/Example_Rotary_2D> (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom bool inputs:enabled
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RunOnce.outputs:step>
+                custom uint inputs:height
+                custom rel inputs:renderProductPrim (
+                    customData = {
+                        dictionary omni = {
+                            dictionary graph = {
+                                string relType = "target"
+                            }
+                        }
+                    }
+                )
+                custom uint inputs:width
+                token node:type = "isaacsim.core.nodes.IsaacCreateRenderProduct"
+                int node:typeVersion = 3
+                custom uint outputs:execOut (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                custom token outputs:renderProductPath
+            }
+
+            def OmniGraphNode "LaserScanPublish"
+            {
+                custom uint64 inputs:context
+                prepend uint64 inputs:context.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/Context.outputs:context>
+                custom bool inputs:enabled
+                custom bool inputs:enableObjectIdMap
+                custom uint inputs:execIn (
+                    customData = {
+                        bool isExecution = 1
+                    }
+                )
+                prepend uint inputs:execIn.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RenderProduct.outputs:execOut>
+                custom string inputs:frameId = "base_scan"
+                custom uint inputs:frameSkipCount
+                custom bool inputs:fullScan
+                custom string inputs:nodeNamespace = ""
+                custom string inputs:objectIdMapTopicName
+                custom string inputs:qosProfile
+                custom uint64 inputs:queueSize
+                custom token inputs:renderProductPath
+                prepend token inputs:renderProductPath.connect = </turtlebot3_burger/Graphs/ROS_LidarRTX/RenderProduct.outputs:renderProductPath>
+                custom bool inputs:resetSimulationTimeOnStop
+                custom token[] inputs:selectedMetadata
+                custom bool inputs:showDebugView
+                custom string inputs:topicName = "/laser_scan"
+                custom token inputs:type = "laser_scan" (
+                    allowedTokens = ["laser_scan", "point_cloud"]
+                )
+                custom bool inputs:useSystemTime
+                token node:type = "isaacsim.ros2.bridge.ROS2RtxLidarHelper"
+                int node:typeVersion = 3
+            }
         }
     }
 
@@ -787,6 +777,22 @@ def Xform "turtlebot3_burger" (
 
     over "caster_back_link"
     {
+    }
+
+    over "base_scan"
+    {
+        def OmniLidar "Example_Rotary_2D" (
+            prepend references = @https://omniverse-content-production.s3-us-west-2.amazonaws.com/Assets/Isaac/6.2/Isaac/Sensors/NVIDIA/Example_Rotary_2D.usda@
+        )
+        {
+            custom string[] _replicator:rendervar:GenericModelOutput:channels = ["NONE"]
+            float omni:sensor:Core:farRangeM = 12
+            float omni:sensor:Core:nearRangeM = 0.2
+            quatd xformOp:orient = (1, 0, 0, 0)
+            double3 xformOp:scale = (1, 1, 1)
+            double3 xformOp:translate = (0, 0, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+        }
     }
     variantSet "Physics" = {
         "None" (
@@ -817,6 +823,35 @@ def Xform "turtlebot3_burger" (
     }
 }
 
+def Xform "GroundPlane"
+{
+    quatf xformOp:orient = (1, 0, 0, 0)
+    float3 xformOp:scale = (1, 1, 1)
+    double3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+    def Mesh "CollisionMesh"
+    {
+        uniform bool doubleSided = 0
+        int[] faceVertexCounts = [4]
+        int[] faceVertexIndices = [0, 1, 2, 3]
+        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
+        point3f[] points = [(-25, -25, 0), (25, -25, 0), (25, 25, 0), (-25, 25, 0)]
+        color3f[] primvars:displayColor = [(0.5, 0.5, 0.5)]
+        texCoord2f[] primvars:st = [(0, 0), (1, 0), (1, 1), (0, 1)] (
+            interpolation = "varying"
+        )
+    }
+
+    def Plane "CollisionPlane" (
+        prepend apiSchemas = ["PhysicsCollisionAPI"]
+    )
+    {
+        uniform token axis = "Z"
+        uniform token purpose = "guide"
+    }
+}
+
 def "Render" (
     hide_in_stage_window = true
     no_delete = true
@@ -830,7 +865,7 @@ def "Render" (
         )
         {
             def RenderProduct "omni_kit_widget_viewport_ViewportTexture_0" (
-                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1", "OmniRtxSettingsParticleFieldAPI_1"]
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxSettingsParticleFieldAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1"]
                 hide_in_stage_window = true
                 no_delete = true
             )
@@ -842,7 +877,6 @@ def "Render" (
                 bool omni:rtx:debug:view:pixelDebug:enableFixedTextPos = 1
                 token omni:rtx:directLighting:sampledLighting:denoisingTechnique = "None"
                 bool omni:rtx:dlss:frameGeneration = 0
-                float3 omni:rtx:domeLight:rotationAxis = (0, 0, 1)
                 bool omni:rtx:indirectDiffuse:denoiser:enabled = 0
                 bool omni:rtx:material:db:syncLoads = 1
                 token omni:rtx:post:dlss:execMode = "performance"
@@ -869,7 +903,7 @@ def "Render" (
             }
 
             def RenderProduct "Replicator" (
-                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1", "OmniRtxSettingsParticleFieldAPI_1"]
+                prepend apiSchemas = ["OmniRtxSettingsCommonAdvancedAPI_1", "OmniRtxSettingsRtAdvancedAPI_1", "OmniRtxSettingsPtAdvancedAPI_1", "OmniRtxSettingsParticleFieldAPI_1", "OmniRtxPostColorGradingAPI_1", "OmniRtxPostChromaticAberrationAPI_1", "OmniRtxPostBloomPhysicalAPI_1", "OmniRtxPostMatteObjectAPI_1", "OmniRtxPostCompositingAPI_1", "OmniRtxPostDofAPI_1", "OmniRtxPostMotionBlurAPI_1", "OmniRtxPostTvNoiseAPI_1", "OmniRtxPostTonemapIrayReinhardAPI_1", "OmniRtxPostDebugSettingsAPI_1", "OmniRtxDebugSettingsAPI_1"]
                 hide_in_stage_window = true
                 no_delete = true
             )
@@ -878,7 +912,7 @@ def "Render" (
                 bool omni:rtx:material:db:syncLoads = 1
                 bool omni:rtx:rt:ecoMode:enabled
                 bool omni:rtx:scene:hydra:materialSyncLoads = 1
-                rel orderedVars = </Render/Vars/LdrColor>
+                rel orderedVars = </Render/Vars/GenericModelOutput>
                 custom bool overrideClipRange = 0
                 uniform int2 resolution = (1280, 720)
             }
@@ -896,7 +930,10 @@ def "Render" (
         ]
     }
 
-    def "Vars"
+    def "Vars" (
+        hide_in_stage_window = true
+        no_delete = true
+    )
     {
         def RenderVar "LdrColor" (
             hide_in_stage_window = true
@@ -911,7 +948,7 @@ def "Render" (
             prepend apiSchemas = ["RenderVarChannelsAPI"]
         )
         {
-            custom string[] channels = ["NONE"]
+            string[] channels = ["NONE"]
             uniform string sourceName = "GenericModelOutput"
         }
     }
@@ -938,10 +975,10 @@ over "OmniverseKit_Persp" (
     float exposure:time = 0.02
     float focalLength = 18.147562
     float focusDistance = 400
-    custom uniform vector3d omni:kit:centerOfInterest = (1.6244547177656954e-16, 4.873364153297087e-17, -1.4081095985152892)
-    float3 xformOp:rotateXYZ = (81.01872, -5.96354e-14, -165.34346)
+    custom uniform vector3d omni:kit:centerOfInterest = (3.571777993961676e-16, 1.0715333981885031e-16, -3.096088073160159)
+    float3 xformOp:rotateXYZ = (76.343285, -1.2722219e-14, 130.66795)
     float3 xformOp:scale = (1, 1, 1)
-    double3 xformOp:translate = (-0.12579190885683006, 1.0014623390995636, 0.2351425925352178)
+    double3 xformOp:translate = (2.3905438729809845, 2.0348574407731888, 0.8759426586908524)
     uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:rotateXYZ", "xformOp:scale"]
 }
 
@@ -1024,35 +1061,5 @@ def PhysicsScene "PhysicsScene" (
     prepend apiSchemas = ["NewtonSceneAPI", "PhysxSceneAPI"]
 )
 {
-}
-
-def Xform "GroundPlane"
-{
-    token visibility = "inherited"
-    quatf xformOp:orient = (1, 0, 0, 0)
-    float3 xformOp:scale = (1, 1, 1)
-    double3 xformOp:translate = (0, 0, 0)
-    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-
-    def Mesh "CollisionMesh"
-    {
-        uniform bool doubleSided = 0
-        int[] faceVertexCounts = [4]
-        int[] faceVertexIndices = [0, 1, 2, 3]
-        normal3f[] normals = [(0, 0, 1), (0, 0, 1), (0, 0, 1), (0, 0, 1)]
-        point3f[] points = [(-25, -25, 0), (25, -25, 0), (25, 25, 0), (-25, 25, 0)]
-        color3f[] primvars:displayColor = [(0.5, 0.5, 0.5)]
-        texCoord2f[] primvars:st = [(0, 0), (1, 0), (1, 1), (0, 1)] (
-            interpolation = "varying"
-        )
-    }
-
-    def Plane "CollisionPlane" (
-        prepend apiSchemas = ["PhysicsCollisionAPI"]
-    )
-    {
-        uniform token axis = "Z"
-        uniform token purpose = "guide"
-    }
 }
 
